@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block content %}
+       
+ <nav class="navbar navbar-expand-lg navbar-light nav-customize-color py-3" style=" box-shadow: 5px 10px 8px #888888">
+  <a class="navbar-brand brand-color"  href="{% url 'home' %}">Expense Manager</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto navbar-right">
+          <li class="user-name">Hello,{{user.first_name}}</li>
+          </ul>
+        <ul class="nav navbar-nav navbar-right">
+      <li><a href="{% url 'home' %}" class="user-navbar"><span class="glyphicon glyphicon-user "></span>Home</a></li>
+          
+       {% if user.is_authenticated  %}
+      <li><a href="{% url 'logout' %}" class="user-navbar"><span class="glyphicon glyphicon-log-in"></span>Logout</a></li>
+     {% else %}
+      <li><a href="{% url 'register' %}" class="user-navbar"><span class="glyphicon glyphicon-log-in"></span>Log In</a></li>
+    {% endif %}
+          
+    </ul>
+        </div>
+</nav>
+        <div class="container" id="front_style_div" style=" box-shadow: 5px 10px 8px #888888">
+            <div class="row">
+                <div class="col text-center" style="background-color:#2f649d; color:white;">
+                    <h1 style="font-size:8vw;">User</h1>
+                </div>
+                <div class="col text-center" style="background-color:white; color:#2f649d;">
+                    <h1 style="font-size:8vw;">Profile</h1>
+                </div>
+            </div>
+        </div>
+      
+     
+     <div class="container mt-5">
+         <div class="row">
+             <div class="col-lg-5 mb-3"><h3><span class="user-details"> Name: </span>{{user.first_name}} {{user.last_name}}</h3>
+                 <h3><span class="user-details"> Username: </span>{{user.username}}</h3>
+                 <h3><span class="user-details"> Email: </span>{{user.email}}</h3>
+                 <h3><span class="user-details"> Monthly Income: </span>{{customer.monthlyIncome}} Rs</h3>
+                 <br />
+                 {% for m in messages %}
+                 <h5 style="color:maroon">{{m}}</h5>
+                 {% endfor %}
+                 <div class="row">
+                     <form action="addmi" method="post">
+                         {% csrf_token %}
+                         <div class="col mb-3 mb-lg-0">
+                             <input type="number" class="form-control" name="monthly_income" placeholder="Update monthly income" required />
+                         </div>
+
+                         <div class="col mt-3 mb-lg-0 pr-1">
+                             <button type="submit" class="btn btn-success">Add or Update</button>
+                         </div>                     
+                 </form>
+                 </div>
+             </div>
+                 <div class="col-lg py-4">
+                    <canvas id="myChart"></canvas>
+                     <ul class="legend">
+
+</ul>
+                 </div>
+             </div>
+     </div>   
+
+      
+
+
+   <script>
+       var categories = []
+       var amounts = []
+       var endpoint = '/user/api/chart/data'
+       $.ajax({
+           method: 'GET',
+           url: endpoint,
+           success: function (response_data) {
+               for (var i = 0; i < response_data.length; i++) {
+                   categories[i] = response_data[i].category
+                   amounts[i] =(response_data[i].sum)
+               }
+               console.log(amounts)
+               console.log(categories)
+
+               var ctx = document.getElementById('myChart').getContext('2d');
+               var myChart = new Chart(ctx, {
+                   type: 'bar',
+                   data: {
+                       labels: categories,
+                       datasets: [{
+                           label: categories,
+                           data: amounts,
+                           backgroundColor: [
+                               'rgba(255, 99, 132, 0.2)',
+                               'rgba(54, 162, 235, 0.2)',
+                               'rgba(255, 206, 86, 0.2)',
+                               'rgba(75, 192, 192, 0.2)',
+                               'rgba(153, 102, 255, 0.2)',
+                               'rgba(255, 159, 64, 0.2)',
+                               'rgba(139, 69, 19, 0.2)',
+                               'rgba(119, 136, 153, 0.2)',
+                               'rgba(255, 20, 147, 0.2)',
+                               'rgba(153, 50, 204, 0.2)',
+                           ],
+                           borderColor: [
+                               'rgba(255, 99, 132, 1)',
+                               'rgba(54, 162, 235, 1)',
+                               'rgba(255, 206, 86, 1)',
+                               'rgba(75, 192, 192, 1)',
+                               'rgba(153, 102, 255, 1)',
+                               'rgba(255, 159, 64, 1)',
+                               'rgba(139, 69, 19, 1)',
+                               'rgba(119, 136, 153, 1)',
+                               'rgba(255, 20, 147, 1)',
+                               'rgba(153, 50, 204, 1)',
+                           ],
+                           borderWidth: 1
+                       }]
+                   },
+                   options: {
+                       legend: {
+                           display: false,
+                           position : 'bottom',
+                           labels: {
+                               fontColor: 'rgba(0,0,0)',
+                                 
+                           }
+                       },
+                       scales: {
+                           yAxes: [{
+                               ticks: {
+                                   beginAtZero: true
+                               }
+                           }]
+                       }
+                   }
+               });
+           },
+           error: function (error_data) {
+               console.log(error_data)
+           },
+       })
+
+     
+       
+
+    
+
+   </script>
+
+{% endblock content %}

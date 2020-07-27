@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+{% load static %}
+<!doctype html>
+<html>
+    <body>
+        
+      {% block content %}
+       <nav class="navbar navbar-expand-lg navbar-light nav-customize-color py-3" style=" box-shadow: 5px 10px 8px #888888">
+  <a class="navbar-brand brand-color"  href="{% url 'home' %}">Expense Manager</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto navbar-right">
+          <li class="user-name">Hello,{{user.first_name}}</li>
+          </ul>
+        <ul class="nav navbar-nav navbar-right">
+      <li><a href="{% url 'pie_chart' %}" class="user-navbar"><span class="glyphicon glyphicon-user "></span>User Profile</a></li>
+      {% if user.is_authenticated  %}
+      <li><a href="{% url 'logout' %}" class="user-navbar"><span class="glyphicon glyphicon-log-in"></span>Logout</a></li>
+     {% else %}
+      <li><a href="{% url 'register' %}" class="user-navbar"><span class="glyphicon glyphicon-log-in"></span>Log In</a></li>
+    {% endif %}
+    </ul>
+        </div>
+</nav>
+        <div class="container" id="front_style_div" style=" box-shadow: 5px 10px 8px #888888">
+            <div class="row">
+                <div class="col text-center" style="background-color:#2f649d; color:white;">
+                    <h1 style="font-size:8vw;">Expense</h1>
+                </div>
+                <div class="col text-center" style="background-color:white; color:#2f649d;">
+                    <h1 style="font-size:8vw;">Manager</h1>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-5 py-3"> 
+            <!--<button class="btn btn-primary mr-3 add">Add new row</button>
+            <button type='button' class='btn btn-secondary remove'>Remove row</button> -->
+
+                <form action="addExpense" id="add-expense-detail" method="post">
+                    {% csrf_token %}
+                <div class="row mt-3">
+                
+                <div class="col-lg-2 mb-3 mb-lg-0 pr-1">
+                    <input class="form-control" type="date" name="date" required>
+                </div>
+                  
+                <div class="col-lg-2 mb-3 mb-lg-0 pr-1">
+                    <select class="custom-select" name="category" required>
+                      <option value='' disabled selected>--Category--</option>
+                      <option value="Food">Food</option>
+                      <option value="Social Life">Social life</option>
+                      <option value="Education">Education</option>
+                      <option value="Household">Household</option>
+                      <option value="Transportaion">Transportaion</option>
+                      <option value="Fashion">Fashion</option>
+                      <option value="Health">Health</option>
+                      <option value="Self Development">Self development</option>
+                      <option value="Gift">Gift</option>
+                      <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                    <div class="col-lg-2 mb-3 mb-lg-0 pr-1">
+                    <select class="custom-select" name="accounts" required>
+                      <option value='' disabled selected>--Account--</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Card">Card</option>
+                      
+                     
+                    </select>
+                </div>
+                 
+                <div class="col-lg-3 mb-3 mb-lg-0 pr-1">
+                    <input class="form-control" type="text" placeholder="Contents" name="contents" required>
+                </div>
+
+                <div class="col-lg-2 mb-3 mb-lg-0 pr-1">
+                    <input class="form-control" type="number" step="0.01" placeholder="Amount(Rs.)" name="amount" required> 
+                </div>
+
+                 <div class="col-lg-1 mb-3 mb-lg-0 pr-1">
+                    <button type="submit" class="btn btn-success button">Add</button>
+                </div>
+    
+            </div>
+                </form>
+        </div>
+
+        <div class="container mt-5">
+            <hr />
+            <div class="row mb-sm-2">
+                <div class="col-lg mb-2 mb-lg-0 text-success">
+                    <h4>
+                          Savings: <span id="savings"> </span> Rs.
+                    </h4>
+                 </div>
+            </div>
+              <hr />
+            <div class="row">
+                <div class="col-lg mb-2 mb-lg-0 ">
+                    <h4>
+                        Total Monthly Income:<span id="monthlyIncome">{{monthly_income}}</span> Rs.
+                    </h4>
+                    </div>
+                <div class="col-lg text-danger">
+                    <h4>
+                        Total Monthly Expense: <span id="total_expense"></span> Rs.
+                    </h4>
+                    </div>
+                </div>
+            <hr class="mt-3">
+        </div>
+
+          <div class="container mt-5">
+              <p>Search through your added details</p>
+             <form action="filter" method="post" id="filter_data">
+                 {% csrf_token %}
+                   <div class="row">
+
+                        <div class="col-lg-2 mb-3 mb-lg-0 pr-1">
+                            <input class="form-control" type="date" name="date">
+                        </div>
+                  
+                        <div class="col-lg-2 mb-3 mb-lg-0 pr-1">
+                            <select class="custom-select" name="category">
+                              <option value=''>--Category--</option>
+                              <option value="Food">Food</option>
+                              <option value="Social Life">Social life</option>
+                              <option value="Education">Education</option>
+                              <option value="Household">Household</option>
+                              <option value="Transportation">Transportation</option>
+                              <option value="Fashion">Fashion</option>
+                              <option value="Health">Health</option>
+                              <option value="Self Development">Self development</option>
+                              <option value="Gift">Gift</option>
+                              <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                            <div class="col-lg-2 mb-3 mb-lg-0 pr-1">
+                            <select class="custom-select" name="accounts">
+                              <option value=''>--Account--</option>
+                              <option value="Cash">Cash</option>
+                              <option value="Card">Card</option>
+                      
+                     
+                            </select>
+                        </div>
+                   
+                        <div class="col-lg-2 mb-3 mb-lg-0 pr-1 button">
+                            <button type="submit" class="btn btn-primary button">Search</button>
+                        </div>
+                       
+                      </div>
+               </form>
+              
+              <div class="row mt-1">
+                  <div class="col-lg-2 mb-3 mb-lg-0 pr-1">
+                        <button type="button" class="btn btn-primary mt-2 button reload " >Reset</button>
+                  </div>
+              </div>
+
+              <div class="mt-3" >
+                     <h5 id="search_expense_detail"></h5>       
+                </div>
+        </div>
+
+     <div class="container">
+         <form action="select_timeline" method="post" id="select-timeline">
+             {% csrf_token %}
+             <div class="row">
+                     <div class="col">
+                         <div class="radio">
+                           <h5><label><input type="radio" name="optradio" value="all" checked> All</label></h5> 
+                        </div>
+                     </div>
+
+                     <div class="col">
+                         <div class="radio">
+                            <h5><label><input type="radio" name="optradio" value="last_week" > Last week</label></h5>
+                        </div>
+                     </div>
+
+                     <div class="col">
+                         <div class="radio">
+                            <h5><label><input type="radio" name="optradio" value="last_month"> Last Month</label></h5> 
+                        </div>
+                     </div>
+                </div>
+             </form>
+     </div>
+        
+
+
+       <div class="container mt-5"  >
+            <table>
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Accounts</th>
+                    <th>Content</th>
+                    <th>Amount</th>
+                     
+                </tr>
+                    </thead>
+                <tbody id="expense_detail">
+                    
+                </tbody> 
+            </table>
+        </div>
+        
+      <script>
+          
+          function getCookie(name) {
+              var cookieValue = null;
+              if (document.cookie && document.cookie !== '') {
+                  var cookies = document.cookie.split(';');
+                  for (var i = 0; i < cookies.length; i++) {
+                      var cookie = cookies[i].trim();
+                      // Does this cookie string begin with the name we want?
+                      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                          break;
+                      }
+                  }
+              }
+              return cookieValue;
+          }
+          var csrftoken = getCookie('csrftoken');
+
+          function addExpenseDetail(event){
+              event.preventDefault()
+              var myForm = event.target
+              var myFormData = new FormData(myForm)
+              var url = myForm.getAttribute("action")
+              var method = myForm.getAttribute("method")
+              const xhr = new XMLHttpRequest()
+              xhr.open(method, url)
+              const responseType = "json"
+              xhr.responseType = responseType
+              xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+              xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+              xhr.onload = function () {
+                  if (xhr.status == 201) {
+                      const addedItem = xhr.response
+                      var formatedAddedItem = formatExpenseDetail(addedItem)
+                      var presentItems = $("#expense_detail").html()
+                      $("#expense_detail").html(formatedAddedItem + presentItems)
+
+                      var presentAmount = parseFloat($("#total_expense").html())
+                      var netAmount = (parseInt(addedItem.amount) + presentAmount).toFixed(2)
+                      $("#total_expense").html(netAmount)
+
+                      var saving = (m - netAmount).toFixed(2)
+                      $("#savings").html(saving)
+                     
+
+                      
+                  }
+
+                  if (xhr.status == 400) {
+                      console.log("error");
+                  }
+                  myForm.reset()
+              }
+              xhr.send(myFormData)
+
+          }
+
+          var add_expense_detail = document.getElementById("add-expense-detail")
+
+          add_expense_detail.addEventListener("submit", addExpenseDetail)
+
+
+          function showExpenseDetail() {
+              const xhr = new XMLHttpRequest
+              const url = '/show'
+              const method = 'GET'
+              xhr.open(method, url)
+              const responseType = "json"
+              xhr.responseType = responseType
+              xhr.onload = function () {
+                  var formatedExpenseDetail = ''
+                  var totalAmount = 0.00
+                  const serverResponse = xhr.response
+                  var listedItems = serverResponse
+                  for (var i = 0; i < listedItems.length; i++) {
+                      var expenseDetailObj = listedItems[i]
+                      amount = parseFloat(listedItems[i].amount)
+                      totalAmount += amount
+                      formatedExpenseDetail += formatExpenseDetail(expenseDetailObj)
+                  }
+
+                  $('#expense_detail').html(formatedExpenseDetail)
+                  $('#total_expense').html(showTotalAmount(totalAmount))
+
+                  var saving = (m - totalAmount).toFixed(2)
+                  $("#savings").html(saving)
+              }
+              xhr.send()
+          }
+          
+          showExpenseDetail()
+
+          function addNewRow() {
+              
+              return "<div class='row mt-3' id='del'><div class='col-lg-2 mb-3 mb-lg-0 pr-1'>Date</div><div class='col-lg-2 mb-3 mb-lg-0 pr-1'>Category</div><div class='col-lg-2 mb-3 mb-lg-0 pr-1'>Account</div><div class='col-lg-3 mb-3 mb-lg-0 pr-1'>Contents</div><div class='col-lg-2 mb-3 mb-lg-0 pr-1'>Amount</div><div class='col-lg-1 mb-3 mb-lg-0 pr-1'><button type='submit' class='btn btn-success'>Add</button></div></div>"
+
+          }
+
+          function formatExpenseDetail(e) {
+              return "<tr><td>" + e.date + "</td><td>" + e.category + "</td><td>" + e.accounts + "</td><td><div>" + e.contents + "</div></td><td class='amount'>" + e.amount + " Rs.</td></tr>"
+          }
+          function showTotalAmount(totalAmount) {
+              return totalAmount.toFixed(2)
+          }
+          
+          function filter() {
+              
+          }
+
+          var filter_data = document.getElementById("filter_data")
+          filter_data.addEventListener("submit", filterExpenseData)
+
+
+          function filterExpenseData(event) {
+              event.preventDefault()
+              myForm = event.target
+              var myFormData = new FormData(myForm)
+              var url = myForm.getAttribute('action')
+              var method = myForm.getAttribute('method')
+              var xhr = new XMLHttpRequest()
+              xhr.open(method, url)
+              const responseType = "json"
+              xhr.responseType = responseType
+              xhr.setRequestHeader('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest')
+              xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+              xhr.onload = function () {
+                  if (status = 201) {
+                      var formatedExpenseDetail = ''
+                      var totalAmount = 0.00
+                      const serverResponse = xhr.response
+                      var listedItems = serverResponse
+                      for (var i = 0; i < listedItems.length; i++) {
+                          var expenseDetailObj = listedItems[i]
+                          amount = parseFloat(listedItems[i].amount)
+                          totalAmount += amount
+                          formatedExpenseDetail += formatExpenseDetail(expenseDetailObj)
+                      }
+
+                      $('#expense_detail').html(formatedExpenseDetail)
+                      $('#search_expense_detail').html("Total Amount from search result:"+showTotalAmount(totalAmount)+" Rs.")
+                  }
+                  myForm.reset()
+                  }
+              
+              xhr.send(myFormData)
+              
+          }
+          $(".reload").click(function () {
+              showExpenseDetail()
+          })
+
+          
+         
+      </script>
+      
+       
+      {% endblock content %}
+    </body>
+</html>
